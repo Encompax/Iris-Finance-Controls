@@ -1,0 +1,24 @@
+{
+  "name": "iris-finance-controls",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Finance controls module for P&L, cost center management, and CAPEX project planning.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "start": "node apps/api/server.js",
+    "dev:api": "node apps/api/server.js",
+    "dev:web": "node apps/web/server.js",
+    "build": "echo \"No build step configured yet.\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "sqlite3": "^6.0.1",
+    "uuid": "^9.0.0"
+  }
+}
