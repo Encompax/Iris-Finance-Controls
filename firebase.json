@@ -1,0 +1,21 @@
+{
+  "hosting": {
+    "site": "encompax-iris",
+    "public": "apps/web/public",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**",
+      "apps/api/**",
+      "services/**",
+      "packages/**",
+      "data/**",
+      "docs/**",
+      "tests/**",
+      "README.md",
+      "ROLLOUT_READINESS_AUDIT.md",
+      "IRIS_RELEASE_CHECKLIST.md"
+    ]
+  }
+}

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Iris Finance Controls Admin</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; background: #020617; color: #f8fafc; }
+      .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+      .card { background: #111827; border: 1px solid #334155; border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; }
+      .toolbar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+      button, input { padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid #475569; }
+      button { background: #2563eb; color: #fff; cursor: pointer; }
+      .pill { display: inline-block; padding: 0.25rem 0.55rem; border-radius: 999px; font-size: 0.8rem; margin-right: 0.5rem; background: #1d4ed8; }
+      table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+      th, td { padding: 0.7rem; border-bottom: 1px solid #334155; text-align: left; }
+      .muted { color: #94a3b8; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>Governance Council Admin</h1>
+        <p class="muted">Track finance governance requests and council review status.</p>
+        <div class="toolbar">
+          <input id="caseId" placeholder="Case ID" />
+          <button onclick="loadCase()">Load case</button>
+          <button onclick="seedCase()">Seed sample case</button>
+        </div>
+      </div>
+
+      <div class="card" id="caseView">
+        <p class="muted">No case selected.</p>
+      </div>
+
+      <div class="card">
+        <h2>Recent governance cases</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Case ID</th>
+              <th>Status</th>
+              <th>Risk</th>
+              <th>Route</th>
+              <th>Last review</th>
+            </tr>
+          </thead>
+          <tbody id="caseTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      const apiBase = 'http://localhost:3002';
+
+      async function loadCase() {
+        const id = document.getElementById('caseId').value.trim();
+        if (!id) {
+          renderCase(null);
+          return;
+        }
+        try {
+          const response = await fetch(`${apiBase}/api/governance/cases/${id}`);
+          const data = await response.json();
+          renderCase(data.case || null);
+        } catch (err) {
+          renderCase(null, 'Unable to load case.');
+        }
+      }
+
+      async function seedCase() {
+        try {
+          const response = await fetch(`${apiBase}/api/governance/cases`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: 'admin-seed',
+              message: 'Seed a new finance governance review for an unusual treasury exception',
+              riskLevel: 'high',
+              context: { controlId: 'SOX-900', amount: 250000 }
+            })
+          });
+          const data = await response.json();
+          document.getElementById('caseId').value = data.case.id;
+          renderCase(data.case);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function renderCase(caseData, errorMessage) {
+        const view = document.getElementById('caseView');
+        if (!caseData) {
+          view.innerHTML = `<p class="muted">${errorMessage || 'No case selected.'}</p>`;
+          return;
+        }
+
+        const reviews = (caseData.reviews || []).map((review) => `<li><strong>${review.seat}</strong>: ${review.decision} — ${review.rationale || 'No rationale provided.'}</li>`).join('');
+        view.innerHTML = `
+          <h2>Case ${caseData.id}</h2>
+          <p><span class="pill">${caseData.status}</span><span class="pill">${caseData.route}</span><span class="pill">${caseData.riskLevel}</span></p>
+          <p><strong>User:</strong> ${caseData.userId}</p>
+          <p><strong>Message:</strong> ${caseData.message}</p>
+          <p><strong>Context:</strong> ${JSON.stringify(caseData.context || {})}</p>
+          <h3>Council review plan</h3>
+          <ul>${(caseData.reviewPlan || []).map((item) => `<li>${item.seat}: ${item.action}</li>`).join('')}</ul>
+          <h3>Reviews</h3>
+          <ul>${reviews || '<li>No reviews yet.</li>'}</ul>
+        `;
+      }
+    </script>
+  </body>
+</html>
