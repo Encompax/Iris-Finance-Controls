@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { saveGovernanceCase: saveDbCase, getGovernanceCase: getDbCase } = require('./databaseStore');
+const { saveGovernanceCase: saveDbCase, getGovernanceCase: getDbCase, listGovernanceCases: listDbCases } = require('./databaseStore');
 
 const storePath = process.env.IRIS_GOVERNANCE_STORE || path.join(process.cwd(), 'data', 'governance-cases.json');
 
@@ -42,4 +42,14 @@ function getGovernanceCase(caseId) {
   });
 }
 
-module.exports = { saveGovernanceCase, getGovernanceCase };
+function listGovernanceCases() {
+  const backend = process.env.IRIS_GOVERNANCE_STORE_BACKEND || 'json';
+  if (backend === 'sqlite') return listDbCases();
+
+  return new Promise((resolve) => {
+    const store = readStore();
+    resolve(Object.values(store));
+  });
+}
+
+module.exports = { saveGovernanceCase, getGovernanceCase, listGovernanceCases };
