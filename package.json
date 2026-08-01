@@ -28,8 +28,13 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@google-cloud/firestore": "^7.11.6",
-    "firebase-admin": "^13.4.0",
+    "firebase-admin": "^14.2.0",
     "sqlite3": "^6.0.1"
+  },
+  "overrides": {
+    "retry-request": "^9.0.0",
+    "teeny-request": "^11.0.0",
+    "gaxios": "^7.3.0",
+    "tar": "^7.5.22"
   }
 }
