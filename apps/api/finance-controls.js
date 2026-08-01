@@ -37,7 +37,8 @@ class FinanceRepository {
     if (!STATUSES.includes(next)) throw new ValidationError("Case status is invalid."); const ref = this.org(context.orgScope).collection("financeControlCases").doc(id); const snap = await ref.get();
     if (!snap.exists) throw new NotFoundError("Finance-control case was not found."); const before = snap.data().status;
     if (!TRANSITIONS[before]?.includes(next)) throw new ConflictError(`Invalid case transition from ${before} to ${next}.`);
-    if (["approved", "committed"].includes(next) && !context.profile.platformOwner && !context.profile.roles?.includes?.("admin")) throw new ConflictError("A human finance approver is required for this transition.");
+    const isApprover = context.token.platformOwner === true || context.token.admin === true || context.profile.platformOwner === true || context.profile.roles?.includes?.("admin");
+    if (["approved", "committed"].includes(next) && !isApprover) throw new ConflictError("A human finance approver is required for this transition.");
     if (next === "approved" && !evidenceIds.length) throw new ConflictError("Approval requires at least one evidence record.");
     const update = { status: next, commitmentBlocked: !["approved", "committed", "closed"].includes(next), updatedAt: serverTimestamp() };
     if (["approved", "rejected"].includes(next)) Object.assign(update, { decisionBy: context.uid, decisionAt: serverTimestamp(), decisionNote: text(note, "Decision note", true, 1000), evidenceIds });
