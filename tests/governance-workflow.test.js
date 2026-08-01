@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createGovernanceCase, submitCouncilReview } = require('../services/agent/governanceWorkflow');
-const { saveGovernanceCase, getGovernanceCase } = require('../services/agent/governanceStore');
+const { saveGovernanceCase, getGovernanceCase, listGovernanceCases } = require('../services/agent/governanceStore');
 const { authenticateRequest } = require('../services/agent/auth');
 const { getProviderStatus, dispatchReview } = require('../services/agent/providerAdapter');
 
@@ -94,4 +94,34 @@ test('sqlite backend persists governance cases to a database file', async () => 
   assert.equal(loaded.message, 'Persist to sqlite');
   delete process.env.IRIS_GOVERNANCE_STORE_BACKEND;
   delete process.env.IRIS_SQLITE_DB_PATH;
+});
+
+test('persisted governance cases can be reloaded and reviewed after storage round-trip', async () => {
+  const created = createGovernanceCase({
+    id: 'reloaded-review-case',
+    userId: 'user-5',
+    title: 'CAPEX review after reload',
+    category: 'capex',
+    reviewLane: 'CAPEX Review Desk',
+    message: 'Reload this governance case before approving it',
+    riskLevel: 'high',
+    route: 'council_review',
+    context: { workspaceKey: 'org-alpha', amount: 175000 }
+  });
+
+  await saveGovernanceCase(created);
+  const loaded = await getGovernanceCase(created.id);
+  const reviewed = submitCouncilReview(created.id, {
+    seat: 'meridian',
+    decision: 'approve',
+    rationale: 'Approved after persisted reload.'
+  }, loaded);
+
+  await saveGovernanceCase(reviewed);
+  const cases = await listGovernanceCases();
+  const finalCase = cases.find((item) => item.id === created.id);
+
+  assert.ok(finalCase);
+  assert.equal(finalCase.status, 'approved');
+  assert.equal(finalCase.reviews[0].decision, 'approve');
 });

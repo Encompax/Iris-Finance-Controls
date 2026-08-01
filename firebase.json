@@ -16,6 +16,22 @@
       "README.md",
       "ROLLOUT_READINESS_AUDIT.md",
       "IRIS_RELEASE_CHECKLIST.md"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": {
+          "serviceId": "encompax-iris-api",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "/health",
+        "run": {
+          "serviceId": "encompax-iris-api",
+          "region": "us-central1"
+        }
+      }
     ]
   }
 }

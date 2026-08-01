@@ -57,4 +57,17 @@ function getGovernanceCase(caseId) {
   });
 }
 
-module.exports = { saveGovernanceCase, getGovernanceCase };
+function listGovernanceCases() {
+  if (getStoreBackend() !== 'sqlite') return Promise.resolve([]);
+
+  const db = initSqlite();
+  return new Promise((resolve, reject) => {
+    db.all('SELECT payload FROM governance_cases', [], (err, rows) => {
+      db.close();
+      if (err) return reject(err);
+      resolve((rows || []).map((row) => JSON.parse(row.payload)));
+    });
+  });
+}
+
+module.exports = { saveGovernanceCase, getGovernanceCase, listGovernanceCases };

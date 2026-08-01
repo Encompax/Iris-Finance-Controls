@@ -183,11 +183,13 @@ function renderPackageCopy(packages, keys) {
 function renderSignedOutState() {
   elements.userGreeting.textContent = "Hello, operator";
   elements.signedInPostureLabel.textContent = "Profile required";
-  elements.accessHeading.textContent = "Sign in through Encompax before entering Iris";
-  elements.accessBody.textContent = "Iris should use the same shared Encompax identity layer as the rest of the platform so finance access, rollout posture, and future cross-module controls stay attached to one governed account.";
+  elements.accessHeading.textContent = "Start in the shared Encompax identity layer, then open the Iris workflow desk";
+  elements.accessBody.textContent = "Iris should use the same shared Encompax identity layer as the rest of the platform so finance access, rollout posture, support routing, and future governed seat versions stay attached to one account.";
   elements.accessPill.textContent = "Auth required";
   elements.accessPill.className = "pill";
   elements.profilePanel.classList.add("hidden");
+  elements.primaryLaunchLink.href = "/workflow.html";
+  elements.primaryLaunchLink.textContent = "Open Iris workflow desk";
 }
 
 function renderSignedInState(user, profile) {
@@ -203,13 +205,14 @@ function renderSignedInState(user, profile) {
   elements.profilePreferredModule.textContent = profile?.preferredModule || "iris";
   elements.orgStatusPill.textContent = active ? "Module active" : "Module pending";
   elements.orgStatusPill.className = active ? "pill success" : "pill warning";
-  elements.accessHeading.textContent = active ? "Your Iris workspace is connected" : "Your Encompax account is active and Iris is still in rollout preparation";
+  elements.accessHeading.textContent = active ? "Your Iris workspace is connected and the finance desk is ready" : "Your Encompax account is active and Iris is still in controlled rollout";
   elements.accessBody.textContent = active
-    ? "Use the shared Encompax workspace to keep finance posture, support routing, and cross-module expansion attached to one account layer."
-    : "Iris is attached to your Encompax profile, but finance workflow posture still needs to mature before broad live access should open.";
+    ? "Use the shared Encompax workspace to keep finance posture, support routing, governed seat history, and cross-module expansion attached to one account layer."
+    : "Iris is attached to your Encompax profile, but the finance workflow lane is still maturing before broad live access should open.";
   elements.accessPill.textContent = active ? "Workspace ready" : "Staging prep";
   elements.accessPill.className = active ? "pill success" : "pill warning";
-  elements.primaryLaunchLink.textContent = active ? "Open Encompax workspace" : "Review workspace posture";
+  elements.primaryLaunchLink.href = "/workflow.html";
+  elements.primaryLaunchLink.textContent = active ? "Open Iris workflow desk" : "Review Iris workflow posture";
 }
 
 function renderSignedInFallback(user) {
@@ -219,6 +222,8 @@ function renderSignedInFallback(user) {
   elements.accessBody.textContent = "We could not load the full workspace profile right now, but Iris should still begin from the shared Encompax workspace where approvals and support routing live.";
   elements.accessPill.textContent = "Profile partial";
   elements.accessPill.className = "pill warning";
+  elements.primaryLaunchLink.href = "/workflow.html";
+  elements.primaryLaunchLink.textContent = "Open Iris workflow desk";
 }
 
 function setMailLink(element, value) {
