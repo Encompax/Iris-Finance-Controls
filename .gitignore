@@ -16,3 +16,4 @@ data/governance-cases.json
 .env.production
 
 firebase-debug.log
+.firebase/
