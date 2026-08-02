@@ -1,7 +1,8 @@
 const http = require("http");
 const { URL } = require("url");
 const { AuthenticationError, AuthorizationError, CODE_TTL_SECONDS, authenticateRequest, createLaunchCode, getServices, redeemLaunchCode } = require("./encompax-auth");
-const { ConflictError, FinanceRepository, NotFoundError, ValidationError } = require("./finance-controls");
+const { ConflictError, FinanceRepository, NotFoundError, TRANSITIONS, ValidationError } = require("./finance-controls");
+const { answerOperator } = require("./module-agent");
 
 const MODULE = { key: "iris", label: "Iris Finance Controls", service: "encompax-iris-api", contractVersion: "2026-08-01", humanApprovalRequired: true };
 const ORIGINS = new Set(["https://www.encompax.com", "https://encompax.com", "https://iris.encompax.io", "https://encompax-iris.web.app"]);
@@ -19,6 +20,23 @@ function createServer(options = {}) {
     if (req.method === "POST" && requestUrl.pathname === "/api/auth/encompax/redeem") { const data = await body(req); return send(req, res, 200, { customToken: await redeemLaunchCode(String(data.code || ""), services) }); }
     const context = await authenticateRequest(req, services);
     if (req.method === "GET" && requestUrl.pathname === "/api/dashboard/overview") return send(req, res, 200, await overview(context, repo));
+    if (req.method === "POST" && requestUrl.pathname === "/api/agent/messages") {
+      const data = await body(req); const message = String(data.message || "").trim();
+      if (!message) throw new ValidationError("A message is required.");
+      if (message.length > 4000) throw new ValidationError("Messages cannot exceed 4,000 characters.");
+      const cases = await repo.listCases(context.orgScope);
+      const selectedCase = data.caseId ? cases.find((item) => item.id === String(data.caseId)) || null : null;
+      if (data.caseId && !selectedCase) throw new NotFoundError("Assistant context was not found in this organization.");
+      const openCases = cases.filter((item) => item.status !== "closed");
+      const agentContext = {
+        orgScope: context.orgScope, organizationName: context.profile.organization || "",
+        operatorRole: context.profile.role || context.profile.accountRole || "OPERATOR",
+        metrics: { openCases: openCases.length, totalExposure: openCases.reduce((sum, item) => sum + Number(item.exposureAmount || 0), 0), pendingApproval: cases.filter((item) => item.status === "pending-approval").length },
+        caseQueue: openCases.slice(0, 25).map((item) => ({ id: item.id, title: item.title, status: item.status, sourceModule: item.sourceModule, exposureAmount: item.exposureAmount, exposureKind: item.exposureKind, approvalRoute: item.approvalRoute, owner: item.owner, dueDate: item.dueDate, commitmentBlocked: item.commitmentBlocked })),
+        selectedCase, allowedTransitions: selectedCase ? TRANSITIONS[selectedCase.status] || [] : [], humanApprovalRequired: true,
+      };
+      return send(req, res, 200, await answerOperator({ message, context: agentContext, uid: context.uid }));
+    }
     if (req.method === "GET" && requestUrl.pathname === "/api/finance/cases") return send(req, res, 200, { cases: await repo.listCases(context.orgScope) });
     if (req.method === "POST" && requestUrl.pathname === "/api/finance/cases") return send(req, res, 201, { case: await repo.createCase(context, await body(req)) });
     let match = requestUrl.pathname.match(/^\/api\/finance\/cases\/([^/]+)\/status$/);

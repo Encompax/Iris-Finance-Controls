@@ -12,6 +12,24 @@
 .desk-actions { display: flex; gap: 8px; align-items: center; }
 .desk-actions input, .panel select { min-height: 42px; border: 1px solid rgba(163,184,212,.22); border-radius: 6px; background: #0b1220; color: #f4f7fb; padding: 8px 12px; }
 .operations-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr); gap: 16px; }
+.assistant-panel { margin-bottom: 16px; }
+.assistant-heading { display:flex; justify-content:space-between; gap:20px; align-items:start; }
+.assistant-heading h2 { margin:2px 0 4px; }
+.assistant-heading p { margin:0; color:#9fb0ca; }
+.assistant-badges { display:flex; gap:8px; }
+.assistant-badges span { border:1px solid rgba(126,200,255,.3); padding:6px 9px; font-size:.72rem; text-transform:uppercase; }
+.assistant-context { display:grid; gap:6px; max-width:560px; margin:16px 0 12px; color:#b5c6df; font-size:.82rem; }
+.assistant-context select { min-height:40px; border:1px solid rgba(163,184,212,.22); border-radius:6px; background:#0b1220; color:#f4f7fb; padding:8px 12px; }
+.assistant-transcript { max-height:340px; overflow:auto; border:1px solid rgba(163,184,212,.18); padding:12px; display:grid; gap:10px; }
+.assistant-message { width:min(78%,900px); padding:12px; border-left:3px solid #12b8f4; background:#101c2c; }
+.assistant-message.user { margin-left:auto; border-left:0; border-right:3px solid #5687ff; background:#182740; }
+.assistant-message p { margin:6px 0; white-space:pre-wrap; }
+.assistant-message small,.assistant-status,.assistant-draft small { color:#92a4bf; }
+.assistant-prompts { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+.assistant-prompts button { border:1px solid rgba(126,200,255,.35); border-radius:16px; background:transparent; color:#d7e0ee; padding:7px 11px; }
+.assistant-composer { display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end; }
+.assistant-composer textarea { min-height:72px; resize:vertical; border:1px solid rgba(163,184,212,.22); border-radius:6px; background:#0b1220; color:#f4f7fb; padding:10px; font:inherit; }
+.assistant-draft { margin-top:12px; padding:12px; border:1px solid rgba(245,158,11,.4); background:rgba(245,158,11,.08); }
 .compact-form { margin-bottom: 16px; display: grid; gap: 12px; }
 .compact-form > div { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 10px; }
 .compact-form label, .dialog-form label { display: grid; gap: 6px; font-size: .82rem; color: #b5c6df; }
