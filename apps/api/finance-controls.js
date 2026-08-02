@@ -51,4 +51,4 @@ class FinanceRepository {
   }
   async audit(context, entityType, entityId, action, fromStatus, toStatus, details) { await this.org(context.orgScope).collection("financeAudit").add({ entityType, entityId, action, fromStatus, toStatus, details, actorUid: context.uid, actorEmail: context.profile.email || context.token.email || "", orgScope: context.orgScope, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }); }
 }
-module.exports = { ConflictError, FinanceRepository, NotFoundError, ValidationError, approvalRoute };
+module.exports = { ConflictError, FinanceRepository, NotFoundError, TRANSITIONS, ValidationError, approvalRoute };
